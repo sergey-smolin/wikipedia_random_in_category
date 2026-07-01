@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Random Wiki in Category",
+  "version": "1.0",
+  "description": "Open a random Wikipedia article from a chosen category",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Random Wikipedia Article"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://en.wikipedia.org/*"
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+D",
+        "mac": "Ctrl+D"
+      },
+      "description": "Open the extension popup"
+    }
+  }
+}

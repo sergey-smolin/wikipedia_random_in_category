@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wiki Random In Category</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      min-width: 250px;
+      padding: 10px;
+    }
+    #categoryInput {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <input type="text" id="categoryInput" placeholder="Enter Wikipedia category">
+  <button id="setCategoryBtn">Set Category</button>
+  <button id="randomBtn" disabled>Open Random Page</button>
+  <div id="debugBox">Open Random Page</button>
+
+  <script type="module" src="config.js"></script>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
