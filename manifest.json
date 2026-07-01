@@ -16,14 +16,5 @@
   ],
   "host_permissions": [
     "https://en.wikipedia.org/*"
-  ],
-  "commands": {
-    "_execute_action": {
-      "suggested_key": {
-        "default": "Ctrl+D",
-        "mac": "Ctrl+D"
-      },
-      "description": "Open the extension popup"
-    }
-  }
+  ]
 }

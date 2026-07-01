@@ -37,6 +37,8 @@ async function throttledFetch(url, options = {}) {
   }
   lastRequestTimestamp = Date.now();
 
+  console.log('API request: ', url, new Date());
+
   const resp = await fetch(url, {
     ...options,
     headers: {
@@ -47,6 +49,7 @@ async function throttledFetch(url, options = {}) {
 
   // If we are rate‑limited, respect the Retry‑After header and retry once
   if (resp.status === 429) {
+    console.log('Rate limited: 429 status')
     const retryAfter = parseInt(resp.headers.get("Retry-After"), 10) || 5;
     await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
     return throttledFetch(url, options);
@@ -86,7 +89,6 @@ function storeCategory(category) {
  * Saves the categoriesMap to chrome.storage.local.
  */
 function saveCategoriesMapToStorage() {
-  debugger;
   // Convert Map to array of [key, value] pairs for serialization
   let mapArray = []
 
@@ -98,6 +100,7 @@ function saveCategoriesMapToStorage() {
     }
     mapArray.push([categoryTree[0], categoryTreeArray])
   }
+  console.log('Saving to storage: ', mapArray)
   chrome.storage.local.set({ wikiRandomCategoriesMap: mapArray }, () => {
     if (chrome.runtime.lastError) {
       console.warn('Failed to store categories map:', chrome.runtime.lastError);
@@ -111,7 +114,6 @@ function saveCategoriesMapToStorage() {
  * Loads the categoriesMap from chrome.storage.local.
  */
 function loadCategoriesMap() {
-  debugger;
   return new Promise((resolve) => {
     chrome.storage.local.get(['wikiRandomCategoriesMap'], (result) => {
       if (result.wikiRandomCategoriesMap) {
@@ -123,7 +125,7 @@ function loadCategoriesMap() {
           }
           categoriesMap.set(key, categoryTree);
         }
-        console.log('Categories map loaded from storage, entries:', categoriesMap.size);
+        console.log('Categories map loaded from storage, entries:', categoriesMap);
       }
       resolve();
     });
@@ -319,7 +321,6 @@ setBtn.addEventListener("click", async () => {
   if (!value) return;
   // NOTE: use the global instead of value?
   currentCategory = value
-  // randomBtn.disabled = false; // enable random button if category is set
   // TODO: return in case category was not changed but user clicked
   cachedList = []
 
@@ -327,6 +328,7 @@ setBtn.addEventListener("click", async () => {
   currentRoot = cachedCategory || new Map();
   // categoriesMap.set(value, currentRoot);
   if (cachedCategory) {
+    randomBtn.disabled = false; // enable random button if category exists in cache
     // if we got a subtree from larger tree from the cache, save it to cache
     const lkValue = value.toLowerCase()
     if (!categoriesMap.has(lkValue)) {
@@ -374,6 +376,7 @@ randomBtn.addEventListener("click", async () => {
 
         // Save the updated categoriesMap to storage
         saveCategoriesMapToStorage();
+        console.log("Found a page. Finishing.")
         return;
       }
 
