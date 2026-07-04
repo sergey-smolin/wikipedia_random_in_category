@@ -8,7 +8,8 @@
     "default_title": "Random Wikipedia Article"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "permissions": [
     "tabs",
@@ -16,5 +17,18 @@
   ],
   "host_permissions": [
     "https://en.wikipedia.org/*"
-  ]
+  ],
+  "commands": {
+    "button1-action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+1",
+        "mac": "Command+Shift+1"
+      },
+      "description": "Trigger Button 1"
+    },
+    "random-article": {
+      "suggested_key": { "default": "Ctrl+Shift+2" },
+      "description": "Random article"
+    }
+  }
 }
