@@ -52,7 +52,7 @@ A Chrome extension that opens a random Wikipedia article from a specified catego
 - Uses `action=query&list=categorymembers` endpoint
 - Handles pagination with `cmcontinue`
 - Respects `Retry-After` headers on 429 responses
-- User-Agent: `RandomWikiInCategory/1.0 (https://github.com/sergey-smolin/random-wiki-in-category)`
+- User-Agent: `WikiRandomInCategory/1.1 (https://github.com/sergey-smolin/wikipedia_random_in_category/)`
 
 ### Storage Structure
 - Converts items into a format compatible with Chrome storage
