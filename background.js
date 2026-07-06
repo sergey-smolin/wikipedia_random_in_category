@@ -193,7 +193,7 @@ function removeFromList(item) {
  * @param {Map<string,Array>} subtree
  */
 function addSubtreeToList(rootId, subtree) {
-  const children = subtree.get(rootId);
+  const children = subtree.get(rootId.toLowerCase());
   if (!children) return;
   for (const item of children) {
     // If the item is a page or sub‑category, ensure it's in cachedList.
@@ -218,7 +218,6 @@ function updateTree(category, pages, subcats) {
     ns: m.ns,
   }));
   currentRoot.set(categoryToLowerCase, combined);
-  // NOTE: What about updating categoriesMap here also?
 }
 
 /**
@@ -344,6 +343,8 @@ const initializeCategory = async (value) => {
       console.log(`Failed to load category: ${e.message}`);
     } finally {
       fetching = false;
+      // Save the updated categoriesMap to storage
+      saveCategoriesMapToStorage();
     }
   }
   storeCategory(value);
@@ -371,6 +372,7 @@ async function handleRandomArticle() {
 
       // Page → open it
       if (candidate.ns === 0) {
+        console.log('Loading page: ', candidate.title)
         openPage(candidate)
 
         // Save the updated categoriesMap to storage
