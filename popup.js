@@ -19,6 +19,9 @@ chrome.runtime.onMessage.addListener((message) => {
     setBtn.disabled = false;
   } else if (message.TYPE === "disable-random-page-button") {
     randomBtn.disabled = false;
+  } else if (message.TYPE === "category-is-empty") {
+    const messageNode = document.createTextNode('Category is empty')
+    messageBox.appendChild(messageNode)
   } else if (message.TYPE === "is-fetching") {
     // initial popup show check to enable buttons
     if (message.value === false) {
@@ -39,7 +42,5 @@ randomBtn.addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   loadSelectedCategory()
-  setTimeout(() => {
-    chrome.runtime.sendMessage(null, { TYPE: "check-is-fetching" });
-  }, 1000)
+  chrome.runtime.sendMessage(null, { TYPE: "check-is-fetching" });
 })

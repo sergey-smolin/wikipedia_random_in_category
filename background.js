@@ -337,18 +337,24 @@ const initializeCategory = async (value) => {
     try {
       const fetching = true;
       await fetchAndCacheCategory(value.title);
-      sendMessage({ TYPE: 'enable-buttons' })
-      console.log(`Category "${value}" loaded with ${cachedList.length} items.`);
     } catch (e) {
       sendMessage({ TYPE: 'disable-random-page-button' })
       console.log(`Failed to load category: ${e.message}`);
     } finally {
       fetching = false;
-      // Save the updated categoriesMap to storage
-      saveCategoriesMapToStorage();
+      // NOTE: enable-buttons into disable-random-page-button maybe not the best way to handle this
+      sendMessage({ TYPE: 'enable-buttons' })
+      if (!cachedList.length) {
+        sendMessage({ TYPE: 'category-is-empty' })
+        sendMessage({ TYPE: 'disable-random-page-button' })
+      } else {
+        console.log(`Category "${value}" loaded with ${cachedList.length} items.`);
+        // Save the updated categoriesMap to storage
+        saveCategoriesMapToStorage();
+        storeCategory(value);
+      }
     }
   }
-  storeCategory(value);
 }
 
 async function handleRandomArticle() {
