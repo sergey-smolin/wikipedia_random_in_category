@@ -3,6 +3,7 @@ import { API_USER_AGENT } from './config.js';
 
 let cachedList = [];
 let currentRoot;
+// {title: string, id: string}
 let currentCategory;
 const categoriesMap = new Map();
 let fetching = false;
@@ -10,7 +11,7 @@ let fetching = false;
 function sendMessage(message) {
   chrome.runtime.sendMessage(null, message, function () {
     if (chrome.runtime.lastError) {
-      console.log('Sending message while poppup is closed. No effect.')
+      console.log('Sending message while popup is closed. No effect.')
     }
   })
 }
@@ -90,7 +91,7 @@ function saveCategoriesMapToStorage() {
   // Convert Map to array of [key, value] pairs for serialization
   let mapArray = []
 
-  categoriesMap.set(currentCategory.toLowerCase(), currentRoot)
+  categoriesMap.set(currentCategory.id, currentRoot)
   for (const categoryTree of categoriesMap.entries()) {
     const categoryTreeArray = []
     for (const item of categoryTree[1]) {
@@ -228,7 +229,7 @@ function mergeSubtree(subree) {
   for (const item of subtree.entries()) {
     currentRoot.set(item[0], item[1]);
   }
-  const categoryRootNode = currentCategory
+  const categoryRootNode = currentCategory.id
   categoriesMap.set(categoryRootNode, currentRoot)
 }
 
@@ -241,20 +242,20 @@ function mergeSubtree(subree) {
  * @returns {Map<string,Array>}
  */
 function pickDescendants(cat, parentTree, newMap) {
-  const categoryToLowerCase = cat.toLowerCase();
+  const categoryToLowerCase = cat.title;
   const children = parentTree.get(categoryToLowerCase);
   if (!children) return newMap;
   if (!newMap) newMap = new Map();
   newMap.set(categoryToLowerCase, children);
   for (const item of children) {
-    pickDescendants(item.title, parentTree, newMap);
+    pickDescendants(title, parentTree, newMap);
   }
   return newMap;
 }
 
 /**
  * Checks if a category (or its subtree) is already in memory.
- * @param {string} cat
+ * @param {title: string, id: string} cat
  * @returns {Map<string,Array>|undefined}
  */
 function checkCachesForCategory(cat) {
@@ -283,7 +284,7 @@ function checkCachesForCategory(cat) {
 
 /**
  * Fetches pages and sub‑categories for a category and updates caches.
- * @param {string} category
+ * @param {title: string, id: string} category
  */
 async function fetchAndCacheCategory(category) {
   // Fetch pages and sub‑categories concurrently
@@ -293,7 +294,7 @@ async function fetchAndCacheCategory(category) {
   ]);
 
   if (pages.length === 0 && subcats.length === 0) {
-    console.log(`Category "${category}" has no members.`);
+    console.log(`Category "${category.title}" has no members.`);
     return;
   }
 
@@ -320,22 +321,22 @@ const initializeCategory = async (value) => {
   // TODO: return in case category was not changed but user clicked
   cachedList = []
 
-  const cachedCategory = checkCachesForCategory(value);
+  const cachedCategory = checkCachesForCategory(value.id);
   currentRoot = cachedCategory || new Map();
   if (cachedCategory) {
     sendMessage({ TYPE: 'enable-buttons' })
     // if we got a subtree from larger tree from the cache, save it to cache
-    const lkValue = value.toLowerCase()
+    const lkValue = value.id;
     if (!categoriesMap.has(lkValue)) {
       categoriesMap.set(lkValue, currentRoot)
     }
-    addSubtreeToList(value, currentRoot);
+    addSubtreeToList(value.id, currentRoot);
   } else {
     sendMessage({ TYPE: 'disable-buttons' })
 
     try {
       const fetching = true;
-      await fetchAndCacheCategory(value);
+      await fetchAndCacheCategory(value.title);
       sendMessage({ TYPE: 'enable-buttons' })
       console.log(`Category "${value}" loaded with ${cachedList.length} items.`);
     } catch (e) {
@@ -422,18 +423,20 @@ async function handleRandomArticle() {
     setTimeout(() => {
       fetching = false;
       sendMessage({ TYPE: 'enable-buttons' })
-      sendMessage({ TYPE: 'set-category-input', value: currentCategory })
+      sendMessage({ TYPE: 'set-category-input', value: currentCategory.title })
     }, RATE_LIMIT_MS);
   }
 }
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.TYPE === 'set-category') {
-    initializeCategory(message.value)
+    if (!message.value) return;
+    const category_obj = { title: message.value, id: message.value.toLowerCase() }
+    initializeCategory(category_obj)
   } else if (message.TYPE === 'random-article') {
     handleRandomArticle()
   } else if (message.TYPE === "get-category") {
-    sendMessage({ TYPE: 'set-category-input', value: currentCategory })
+    sendMessage({ TYPE: 'set-category-input', value: currentCategory.title })
   } else if (message.TYPE === "check-is-fetching") {
     sendMessage({ TYPE: 'is-fetching', value: fetching })
   }

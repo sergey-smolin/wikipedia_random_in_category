@@ -5,7 +5,7 @@ const randomBtn = document.getElementById("randomBtn");
 function loadSelectedCategory() {
   chrome.storage.local.get(["wikiRandomCategory"], (result) => {
     if (result.wikiRandomCategory) {
-      categoryInput.value = result.wikiRandomCategory;
+      categoryInput.value = result.wikiRandomCategory.title;
     }
   });
 }
